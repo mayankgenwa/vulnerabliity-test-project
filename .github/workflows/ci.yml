@@ -1,20 +1,46 @@
-name: CI Test Runner
-on: [push, pull_request]
+name: CI Agent Pipeline
+
+# Trigger on Push and PR (User Story 1 & 6)
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  test:
+  # Job 1: Test & Quality Check
+  build-and-test:
     runs-on: ubuntu-latest
+    
     steps:
+      # 1. Clone the code (User Story 1)
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # 2. Setup Environment
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm'
 
+      # 3. Install Dependencies
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run Tests
+      # 4. Security Scan (User Story 5)
+      # This checks for known vulnerabilities in your dependencies
+      - name: Security Audit
+        run: npm audit --audit-level=high
+        continue-on-error: true # Let it run so your Agent can see the logs even if it fails
+
+      # 5. Linting / Static Analysis (User Story 4)
+      # Since this project might not have a lint script, we try to run it if present,
+      # or you can add a generic linter here.
+      - name: Code Quality Check
+        run: npm run lint --if-present
+
+      # 6. Run Tests (User Story 3)
+      # This runs the unit tests defined in the project
+      - name: Run Unit Tests
         run: npm test
