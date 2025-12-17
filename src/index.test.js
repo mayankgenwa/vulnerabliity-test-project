@@ -4,7 +4,7 @@ const request = supertest(app);
 
 
 app.get("/", function (req, res) {
-    res.status(500).send("practise with kubernetes");
+    res.status(200).send("practise with kubernetes");
 });
 
 
